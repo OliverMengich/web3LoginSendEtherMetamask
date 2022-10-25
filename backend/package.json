@@ -2,9 +2,10 @@
 	"name": "backend",
 	"version": "1.0.0",
 	"description": "",
-	"main": "index.js",
+	"main": "server.js",
 	"scripts": {
-		"test": "echo \"Error: no test specified\" && exit 1"
+		"test": "echo \"Error: no test specified\" && exit 1",
+		"start": "nodemon ./server.js"
 	},
 	"keywords": [],
 	"author": "",
@@ -16,6 +17,11 @@
 		"express-graphql": "^0.12.0",
 		"graphql": "^16.5.0",
 		"jsonwebtoken": "^8.5.1",
-		"sequelize": "^6.25.3"
+		"sequelize": "^6.25.3",
+		"sqlite3": "^5.1.2",
+		"uuid": "^9.0.0"
+	},
+	"devDependencies": {
+		"nodemon": "^2.0.20"
 	}
 }
