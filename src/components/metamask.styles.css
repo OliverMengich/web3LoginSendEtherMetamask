@@ -1,0 +1,42 @@
+
+.enable_metamask{
+    
+    text-align: center;
+    display: flex;
+    color: white;
+    cursor: pointer;
+    background-color: #2F80ED;
+    align-items: center;
+    text-transform: uppercase;
+    border: none;
+    border-radius: 10px;
+    margin: 10px;
+    padding: 0 20px;
+    border-width: 0px;
+    transition: border-width 2s;
+}
+.enable_metamask img{
+    height: 50px;
+    width: 50px;
+}
+.metamask__action{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 50px;
+    flex-wrap: wrap;
+
+}
+.enable_metamask::after{
+    content: "";
+    display: block;
+    width: 100%;
+    height: 1px;
+    background-color: transparent;
+    margin: 20px 0;
+    transition: width .5s alternate, background-color .5s ease;
+}
+.enable_metamask:hover::after{
+    width: 100%;
+    background-color: blue;
+}
