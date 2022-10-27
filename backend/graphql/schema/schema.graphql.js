@@ -17,9 +17,17 @@ module.exports = buildSchema(`
         token: String!
         tokenExpiration: Int!
     }
+    type Token{
+        nonce: Int
+    }
+    type jwtToken{
+        token: String,
+        message: String
+    }
     type RootQuery {
-        loginMetamask(address: String!): AuthData!
+        loginMetamask(address: String!): Token!
         login(email: String!, password: String!): AuthData!
+        signatureVerify(address: String!,signature: String!): jwtToken!
         users: [User!]
     }
     type RootMutation {

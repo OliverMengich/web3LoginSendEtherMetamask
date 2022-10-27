@@ -3,7 +3,7 @@ const { Sequelize } = require('sequelize');
 const sequelize = new Sequelize({
     dialect: 'sqlite',
     storage: './database/db.sqlite',
-    logging: true
+    logging: false
 });
-sequelize.authenticate().then(()=>console.log("Connecred to data base"));
+sequelize.authenticate().then(()=>console.log("Connected to database"));
 module.exports = sequelize;

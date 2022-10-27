@@ -17,7 +17,12 @@ function Metamask(){
             account = accounts[0];
             console.log(chainId, accounts);
         }
-
+    }
+    async function Logout_metamask(){
+        window.web3 = null;
+        web3 = null;
+        account = null;
+        ethereum = null;
     }
     async function send_metamask(){
         if (web3 && ethereum && account) {
@@ -42,51 +47,86 @@ function Metamask(){
         }
     }
     async function Login_metamask(){
-        const handleSignMessage = async (nonce, publicAddress) => {
-        return new Promise((resolve, reject) =>
-        	web3.eth.personal.sign(
-          		web3.utils.fromUtf8(`Nonce: ${nonce}`),
-          		publicAddress,
-          		(err, signature) => {
-            		if (err) return reject(err);
-            	    return resolve({ publicAddress, signature });
-          		}
-        	)
-      	    );
+        //validate address before sending to server
+        // web3.utils.isAddres(account);
+        let requestBody={
+            query: `
+                query {
+                    loginMetamask(address: "${account}"){
+                        nonce
+                    }
+                }
+            `
         }
-        console.log('login with metamask');
+        const handleSignMessage = (nonce, publicAddress) => {
+            return new Promise((resolve, reject) =>
+                web3.eth.personal.sign(
+                    web3.utils.fromUtf8(`Nonce: ${nonce}`),
+                    publicAddress,
+                    (err, signature) => {
+                        if (err) return reject(err);
+                        return resolve({ publicAddress, signature });
+                    }
+                )
+            );
+        }
         if(web3 && ethereum && account){
-            fetch('http://localhost:4000/users/login', {
+            fetch('http://localhost:4000/users', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({
-                    address: account,
-                }),
+                body: JSON.stringify(requestBody),
             })
-            .then(response => response.json())
+            .then(res=>{
+                if(res.status !== 200 && res.status !==201){
+                    throw new Error("Failed");
+                }
+                return res.json();
+            })
             .then(data => {
-                const nonce = data.nonce;
+                console.log(data);
+                const nonce = data.data.loginMetamask.nonce;
                 console.log(nonce);
-                let signedMessage = handleSignMessage(nonce,account);
-                fetch('http://localhost:4000/users/'+account+'/signature/'+signedMessage, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        signedMessage,
-                    }),
-                })
-                .then(response => response.json())
-                .then(data => {
-                    console.log(data);
-                })
-                .catch(err=>console.error); 
+                if(nonce != null){
+                    return handleSignMessage(nonce,account)
+                    .then((signedMessage)=>{
+                        console.log(signedMessage.signature)
+                        requestBody = {
+                            query: `
+                                query {
+                                    signatureVerify(address: "${account}",signature: "${signedMessage.signature}"){
+                                        token
+                                        message
+                                    }
+                                }
+                            `
+                        }
+                        fetch('http://localhost:4000/users', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify(requestBody),
+                        })
+                        .then(response =>{
+                            if(response.status !==200 && response.status !==201){
+                                throw new Error('Failed');
+                            }
+                            return response.json();
+                        })
+                        .then(data => {
+                            console.log(data);
+                        })
+                        .catch(err=>console.error); 
+                    })
+                }else{
+                    //Redirect the user to registration site.
+                    console.log('Please Register at our site. ')
+                }
             })
             .catch((error) => {
-                console.error('Error:', error);
+                console.error('Error encountered:', error);
             });
         }else{
             await Enable_metamask();
@@ -95,6 +135,10 @@ function Metamask(){
     return(
         <div className="login_metamask">
             <h1>Metamask</h1>
+            <div className="success">
+                <h3>Succcessfull Transaction</h3>
+                <div className="animation-slider"></div>
+            </div>
             <section className="metamask__action">
                 <button onClick={Enable_metamask} className="enable_metamask">
                     <img src={require("../images/metamask.png")} alt="metamaskimage" />
@@ -107,6 +151,10 @@ function Metamask(){
                 <button onClick={Login_metamask} className="enable_metamask">
                     <img src={require("../images/metamask.png")} alt="metamaskimage" />
                     <h2>Login with Metamask</h2>
+                </button>
+                <button onClick={Logout_metamask} className="enable_metamask">
+                    <img src={require("../images/metamask.png")} alt="metamaskimage" />
+                    <h2>LOGOUT</h2>
                 </button>
             </section>
         </div>
