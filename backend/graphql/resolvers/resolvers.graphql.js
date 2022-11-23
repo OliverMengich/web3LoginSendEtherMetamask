@@ -55,7 +55,7 @@ module.exports = {
             const token = await jwt.sign({address: user.address,email: user.email},'HelloMySecretKey',{expiresIn: '1h'});
             return{
                 token: token,
-                message: 'User not Found. Sign In again'
+                message: 'Found, Welcome Back'
             }
         }else {
             return{
